@@ -19,39 +19,26 @@ local specText
 local gsText
 
 local function CreatePanel()
-    panel = CreateFrame("Frame", "SmartGearPanel", CharacterFrame)
-    panel:SetSize(180, 58)
-    panel:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMLEFT", 16, 14)
+    -- Invisible frame anchored under the character's feet
+    panel = CreateFrame("Frame", "SmartGearPanel", CharacterModelFrame)
+    panel:SetSize(200, 40)
+    panel:SetPoint("BOTTOM", CharacterModelFrame, "BOTTOM", 0, 10)
+    panel:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 2)
 
-    local bg = panel:CreateTexture(nil, "BACKGROUND")
-    bg:SetAllPoints()
-    bg:SetTexture(0, 0, 0, 0.45)
+    -- Huge GearScore text
+    gsText = panel:CreateFontString(nil, "OVERLAY", "NumberFontNormalHuge")
+    gsText:SetPoint("TOP", panel, "TOP", 0, 0)
 
-    local border = CreateFrame("Frame", nil, panel)
-    border:SetPoint("TOPLEFT", -1, 1)
-    border:SetPoint("BOTTOMRIGHT", 1, -1)
-    border:SetBackdrop({
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        edgeSize = 12,
-    })
-    border:SetBackdropBorderColor(0.6, 0.6, 0.6, 0.8)
+    -- Smaller SmartScore and Avg iLvl sitting just below it
+    scoreText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    scoreText:SetPoint("TOPRIGHT", panel, "BOTTOM", -4, 0)
 
-    local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    title:SetPoint("TOPLEFT", 8, -6)
-    title:SetText(COLOR_CYAN .. "SmartGear" .. COLOR_CLOSE)
-
-    specText = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    specText:SetPoint("TOPRIGHT", -8, -6)
-    specText:SetJustifyH("RIGHT")
-
-    scoreText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    scoreText:SetPoint("TOPLEFT", 8, -20)
-
-    ilvlText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    ilvlText:SetPoint("TOPLEFT", 8, -32)
+    ilvlText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    ilvlText:SetPoint("TOPLEFT", panel, "BOTTOM", 4, 0)
     
-    gsText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    gsText:SetPoint("TOPLEFT", 8, -44)
+    -- Spec label (hidden/removed to save space, or we can just anchor it top right of character frame)
+    specText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    specText:SetPoint("TOP", scoreText, "BOTTOM", 0, -2)
 
     panel:Show()
 end
@@ -64,10 +51,13 @@ function SmartGear:UpdatePanel()
     local spec  = self.specName     or SmartGear_L["UNKNOWN"]
     local gs    = self:GetUnitGearScore("player")
 
+    -- Format GS nice and big
+    gsText:SetText(self:GetColorByGearScore(gs) .. gs .. COLOR_CLOSE)
+    
+    -- Format other stats below
     scoreText:SetText(COLOR_GOLD .. SmartGear_L["SCORE"] .. ": " .. COLOR_WHITE .. score .. COLOR_CLOSE)
     ilvlText:SetText(COLOR_GOLD  .. SmartGear_L["AVG_ILVL"] .. ": " .. COLOR_WHITE .. ilvl .. COLOR_CLOSE)
-    gsText:SetText(COLOR_GOLD .. SmartGear_L["GS_SCORE"] .. ": " .. self:GetColorByGearScore(gs) .. gs .. COLOR_CLOSE)
-    specText:SetText(COLOR_GOLD  .. spec .. COLOR_CLOSE)
+    specText:SetText(COLOR_CYAN  .. spec .. COLOR_CLOSE)
 end
 
 ------------------------------------------------------------------------
