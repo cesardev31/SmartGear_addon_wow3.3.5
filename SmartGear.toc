@@ -1,0 +1,12 @@
+## Interface: 30300
+## Title: SmartGear
+## Notes: All-in-one Gear analyzer and UI enhancer for WotLK 3.3.5a
+## Author: Cesar
+## Version: 2.1
+
+locales.lua
+core.lua
+talents.lua
+gear.lua
+tooltip.lua
+ui.lua
