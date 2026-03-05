@@ -37,11 +37,17 @@ local function OnTooltipSetItem(tooltip)
     tooltip.smartGearDone = true
 
     --------------------------------------------------------------------
-    -- 1.  Item Level
+    -- 1.  Item Level & GearScore
     --------------------------------------------------------------------
     local iLevel = SmartGear:GetItemLevel(itemLink)
+    local gScore = SmartGear:GetClassicGearScore(itemLink)
+    
     if iLevel and iLevel > 0 then
         AddLine(tooltip, COLOR_CYAN .. SmartGear_L["ITEM_LEVEL"] .. ": " .. iLevel .. COLOR_CLOSE)
+    end
+    if gScore and gScore > 0 then
+        local color = SmartGear:GetColorByGearScore(gScore)
+        AddLine(tooltip, color .. SmartGear_L["GS_SCORE"] .. ": " .. gScore .. COLOR_CLOSE)
     end
 
     --------------------------------------------------------------------
@@ -161,3 +167,21 @@ if ShoppingTooltip2 then
         self.smartGearDone = nil
     end)
 end
+
+------------------------------------------------------------------------
+-- Player Tooltip Hook (Show total GearScore when hovering players)
+------------------------------------------------------------------------
+local function OnTooltipSetUnit(tooltip)
+    local _, unit = tooltip:GetUnit()
+    if not unit or not UnitIsPlayer(unit) then return end
+    
+    local score = SmartGear:GetUnitGearScore(unit)
+    if score and score > 0 then
+        local color = SmartGear:GetColorByGearScore(score)
+        tooltip:AddLine(" ")
+        tooltip:AddLine(color .. SmartGear_L["GS_SCORE"] .. ": " .. score .. COLOR_CLOSE)
+        tooltip:Show()
+    end
+end
+
+GameTooltip:HookScript("OnTooltipSetUnit", OnTooltipSetUnit)

@@ -7,6 +7,7 @@
 locales.lua
 core.lua
 talents.lua
+gearscore.lua
 gear.lua
 tooltip.lua
 ui.lua

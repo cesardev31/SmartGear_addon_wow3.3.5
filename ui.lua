@@ -16,6 +16,7 @@ local panel
 local scoreText
 local ilvlText
 local specText
+local gsText
 
 local function CreatePanel()
     panel = CreateFrame("Frame", "SmartGearPanel", CharacterFrame)
@@ -47,7 +48,10 @@ local function CreatePanel()
     scoreText:SetPoint("TOPLEFT", 8, -20)
 
     ilvlText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    ilvlText:SetPoint("TOPLEFT", 8, -36)
+    ilvlText:SetPoint("TOPLEFT", 8, -32)
+    
+    gsText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    gsText:SetPoint("TOPLEFT", 8, -44)
 
     panel:Show()
 end
@@ -58,9 +62,11 @@ function SmartGear:UpdatePanel()
     local score = self.totalScore   or 0
     local ilvl  = self.avgItemLevel or 0
     local spec  = self.specName     or SmartGear_L["UNKNOWN"]
+    local gs    = self:GetUnitGearScore("player")
 
     scoreText:SetText(COLOR_GOLD .. SmartGear_L["SCORE"] .. ": " .. COLOR_WHITE .. score .. COLOR_CLOSE)
     ilvlText:SetText(COLOR_GOLD  .. SmartGear_L["AVG_ILVL"] .. ": " .. COLOR_WHITE .. ilvl .. COLOR_CLOSE)
+    gsText:SetText(COLOR_GOLD .. SmartGear_L["GS_SCORE"] .. ": " .. self:GetColorByGearScore(gs) .. gs .. COLOR_CLOSE)
     specText:SetText(COLOR_GOLD  .. spec .. COLOR_CLOSE)
 end
 
@@ -241,8 +247,12 @@ SlashCmdList["SMARTGEAR"] = function(msg)
         return
     end
 
+    local gs = SmartGear:GetUnitGearScore("player")
+    local gsColor = SmartGear:GetColorByGearScore(gs)
+    
     SmartGear:Print("SmartGear " .. SmartGear_L["SCORE"] .. ": " .. (SmartGear.totalScore or 0))
     SmartGear:Print("SmartGear " .. SmartGear_L["AVG_ILVL"] .. ": " .. (SmartGear.avgItemLevel or 0))
+    SmartGear:Print("Classic " .. SmartGear_L["GS_SCORE"] .. ": " .. gsColor .. gs .. "|r")
     SmartGear:Print(SmartGear_L["CMD_SPEC"] .. " " .. (SmartGear.specName or SmartGear_L["UNKNOWN"]))
     SmartGear:Print(SmartGear_L["CMD_HELP"])
 end

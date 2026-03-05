@@ -21,6 +21,7 @@ if locale == "esES" or locale == "esMX" then
     L["MISSING_GEM"] = "\226\154\160 Falta gema"
     L["MISSING_ENCHANT"] = "\226\154\160 Falta encantamiento"
     L["UNKNOWN"] = "Desconocido"
+    L["GS_SCORE"] = "GearScore"
     
     L["CMD_RESCAN"] = "Equipamiento reescaneado."
     L["CMD_SPEC"] = "Especialización detectada:"
@@ -53,6 +54,7 @@ else
     L["MISSING_GEM"] = "\226\154\160 Missing gem"
     L["MISSING_ENCHANT"] = "\226\154\160 Missing enchant"
     L["UNKNOWN"] = "Unknown"
+    L["GS_SCORE"] = "GearScore"
     
     L["CMD_RESCAN"] = "Gear rescanned."
     L["CMD_SPEC"] = "Detected spec:"
