@@ -133,29 +133,43 @@ end
 local function CalculateGS(unit)
     if not unit or not UnitIsPlayer(unit) then return 0 end
     
+    local _, class = UnitClass(unit)
+    local isHunter = (class == "HUNTER")
+    local titanGrip = 1.0
+    
+    -- Check for Titan's Grip (2H in main hand while offhand is equipped)
+    local mhLink = GetInventoryItemLink(unit, 16)
+    local ohLink = GetInventoryItemLink(unit, 17)
+    if mhLink and ohLink then
+        local _, _, _, _, _, _, _, _, equipLoc = GetItemInfo(mhLink)
+        if equipLoc == "INVTYPE_2HWEAPON" then
+            titanGrip = 0.5
+        end
+    end
+    
     local totalScore = 0
-    local mainhandScore = 0
 
     for i = 1, 18 do
         local link = GetInventoryItemLink(unit, i)
         if link then
             local score = SmartGear:GetClassicGearScore(link)
-            if i == 16 then mainhandScore = score end
+            
+            -- Apply class / grip modifiers exactly like GSLite
+            if i == 16 and isHunter then 
+                score = score * 0.3164 
+            end
+            if i == 18 and isHunter then 
+                score = score * 5.3224 
+            end
+            if i == 16 or i == 17 then 
+                score = score * titanGrip 
+            end
+            
             totalScore = totalScore + score
         end
     end
 
-    if mainhandScore > 0 then
-        local link = GetInventoryItemLink(unit, 16)
-        if link then
-            local _, _, _, _, _, _, _, _, equipLoc = GetItemInfo(link)
-            if equipLoc == "INVTYPE_2HWEAPON" and GetInventoryItemLink(unit, 17) then
-                totalScore = totalScore - math.floor(mainhandScore / 2)
-            end
-        end
-    end
-
-    return totalScore
+    return math.floor(totalScore)
 end
 
 inspectFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
