@@ -13,32 +13,29 @@ local COLOR_CLOSE  = "|r"
 -- Character Frame info panel
 ------------------------------------------------------------------------
 local panel
-local scoreText
-local ilvlText
-local specText
 local gsText
+local infoText
+local specText
 
 local function CreatePanel()
     -- Invisible frame anchored under the character's feet
+    -- Bumped 15px to the right to visually center with the 3D model properly
     panel = CreateFrame("Frame", "SmartGearPanel", CharacterModelFrame)
     panel:SetSize(200, 40)
-    panel:SetPoint("BOTTOM", CharacterModelFrame, "BOTTOM", 0, 10)
+    panel:SetPoint("BOTTOM", CharacterModelFrame, "BOTTOM", 15, 10)
     panel:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 2)
 
     -- Huge GearScore text
     gsText = panel:CreateFontString(nil, "OVERLAY", "NumberFontNormalHuge")
     gsText:SetPoint("TOP", panel, "TOP", 0, 0)
 
-    -- Smaller SmartScore and Avg iLvl sitting just below it
-    scoreText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    scoreText:SetPoint("TOPRIGHT", panel, "BOTTOM", -4, 0)
-
-    ilvlText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    ilvlText:SetPoint("TOPLEFT", panel, "BOTTOM", 4, 0)
+    -- Secondary stats (SmartScore and iLvl combined to center perfectly)
+    infoText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    infoText:SetPoint("TOP", gsText, "BOTTOM", 0, -2)
     
-    -- Spec label (hidden/removed to save space, or we can just anchor it top right of character frame)
+    -- Spec label
     specText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    specText:SetPoint("TOP", scoreText, "BOTTOM", 0, -2)
+    specText:SetPoint("TOP", infoText, "BOTTOM", 0, -2)
 
     panel:Show()
 end
@@ -54,10 +51,12 @@ function SmartGear:UpdatePanel()
     -- Format GS nice and big
     gsText:SetText(self:GetColorByGearScore(gs) .. gs .. COLOR_CLOSE)
     
-    -- Format other stats below
-    scoreText:SetText(COLOR_GOLD .. SmartGear_L["SCORE"] .. ": " .. COLOR_WHITE .. score .. COLOR_CLOSE)
-    ilvlText:SetText(COLOR_GOLD  .. SmartGear_L["AVG_ILVL"] .. ": " .. COLOR_WHITE .. ilvl .. COLOR_CLOSE)
-    specText:SetText(COLOR_CYAN  .. spec .. COLOR_CLOSE)
+    -- Format other stats below combined
+    local scoreStr = COLOR_GOLD .. SmartGear_L["SCORE"] .. ": " .. COLOR_WHITE .. score .. COLOR_CLOSE
+    local ilvlStr  = COLOR_GOLD .. SmartGear_L["AVG_ILVL"] .. ": " .. COLOR_WHITE .. ilvl .. COLOR_CLOSE
+    infoText:SetText(scoreStr .. "   " .. ilvlStr)
+    
+    specText:SetText(COLOR_CYAN .. spec .. COLOR_CLOSE)
 end
 
 ------------------------------------------------------------------------
