@@ -186,6 +186,10 @@ function SmartGear:UpdateSlotOverlays()
                 f.warn:Hide()
             end
         end
+        -- Also update target frame if we are looking at ourself
+        if UnitIsUnit("target", "player") and SmartGear.UpdateTargetFrameGS then
+            SmartGear:UpdateTargetFrameGS()
+        end
     end
 end
 
@@ -195,6 +199,52 @@ if CharacterFrame then
         SmartGear:ScanGear()
         SmartGear:UpdatePanel()
         SmartGear:UpdateSlotOverlays()
+    end)
+end
+
+------------------------------------------------------------------------
+-- Target Frame GearScore Display
+------------------------------------------------------------------------
+local targetGSText
+
+local function CreateTargetFrameGS()
+    if not TargetFrame then return end
+    
+    local f = CreateFrame("Frame", nil, TargetFrame)
+    f:SetAllPoints()
+    f:SetFrameLevel(TargetFrame:GetFrameLevel() + 2)
+    
+    targetGSText = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    targetGSText:SetPoint("BOTTOMRIGHT", TargetFrame, "BOTTOMRIGHT", -35, 14)
+end
+
+function SmartGear:UpdateTargetFrameGS()
+    if not targetGSText then
+        CreateTargetFrameGS()
+        -- Some UI mods remove the standard TargetFrame, check if we created it
+        if not targetGSText then return end
+    end
+    
+    if UnitExists("target") and UnitIsPlayer("target") then
+        local gs = self:GetUnitGearScore("target")
+        if gs and gs > 0 then
+            targetGSText:SetText("GS: " .. self:GetColorByGearScore(gs) .. gs .. COLOR_CLOSE)
+            targetGSText:Show()
+        else
+            targetGSText:Hide()
+        end
+    else
+        targetGSText:Hide()
+    end
+end
+
+-- Hook the native TargetFrame updates natively
+if TargetFrame then
+    TargetFrame:HookScript("OnShow", function()
+        SmartGear:UpdateTargetFrameGS()
+    end)
+    hooksecurefunc("TargetFrame_Update", function()
+        SmartGear:UpdateTargetFrameGS()
     end)
 end
 

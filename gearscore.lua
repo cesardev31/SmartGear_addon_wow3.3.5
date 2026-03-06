@@ -98,36 +98,57 @@ function SmartGear:GetColorByGearScore(score)
 end
 
 ------------------------------------------------------------------------
--- Inspect Unit scanning (For Player Tooltips)
+-- Silent Inspect Engine & Cache
 ------------------------------------------------------------------------
-local inspectTimer = CreateFrame("Frame")
-inspectTimer.timeElapsed = 0
+-- In WotLK 3.3.5a, GetInventoryItemLink("target", slot) only works IF
+-- the client has successfully inspected the target. We must silently
+-- trigger NotifyInspect() and cache the calculated GearScore when the
+-- server responds with the data.
+------------------------------------------------------------------------
+SmartGear.GSCache = {}
+local inspectFrame = CreateFrame("Frame")
+local lastInspectTime = 0
+local currentInspectUnit = nil
+local currentInspectGUID = nil
 
-function SmartGear:GetUnitGearScore(unit)
-    if not UnitIsPlayer(unit) then return 0 end
+local function DoSilentInspect(unit)
+    if not unit or not UnitIsPlayer(unit) or not CanInspect(unit) then return end
+    
+    local guid = UnitGUID(unit)
+    if not guid then return end
+    
+    -- If we already have them cached recently or we just asked, skip.
+    if SmartGear.GSCache[guid] then return end
+    
+    -- Throttle to avoid disconnecting from spamming the server
+    if GetTime() - lastInspectTime < 1.0 then return end
+    
+    -- In 3.3.5a we MUST check if the inspect frame is not open by the user
+    if InspectFrame and InspectFrame:IsVisible() then return end
+
+    lastInspectTime = GetTime()
+    currentInspectUnit = unit
+    currentInspectGUID = guid
+    
+    NotifyInspect(unit)
+end
+
+-- Calculate on the spot immediately assuming data is available
+local function CalculateGS(unit)
+    if not unit or not UnitIsPlayer(unit) then return 0 end
     
     local totalScore = 0
     local mainhandScore = 0
-    local isHunter = false
-    
-    local _, class = UnitClass(unit)
-    if class == "HUNTER" then isHunter = true end
 
-    -- Scan 1-18 slots (Classic WotLK GS ignores shirt/tabard)
     for i = 1, 18 do
         local link = GetInventoryItemLink(unit, i)
         if link then
-            local score = self:GetClassicGearScore(link)
-            if i == 16 then
-                mainhandScore = score
-            end
+            local score = SmartGear:GetClassicGearScore(link)
+            if i == 16 then mainhandScore = score end
             totalScore = totalScore + score
         end
     end
 
-    -- WotLK GS formula adjusts for Hunters (ranged weapons count more) and TitansGrip weapons
-    -- If mainhand is a 2H but they have an offhand, it's Titan's Grip (Warrior limit) -> half the 2H score
-    -- This is a simplified fallback that covers 99% of cases correctly:
     if mainhandScore > 0 then
         local link = GetInventoryItemLink(unit, 16)
         if link then
@@ -139,4 +160,64 @@ function SmartGear:GetUnitGearScore(unit)
     end
 
     return totalScore
+end
+
+inspectFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+inspectFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+inspectFrame:RegisterEvent("INSPECT_TALENT_READY")
+inspectFrame:SetScript("OnEvent", function(self, event)
+    if event == "UPDATE_MOUSEOVER_UNIT" then
+        DoSilentInspect("mouseover")
+    elseif event == "PLAYER_TARGET_CHANGED" then
+        DoSilentInspect("target")
+        -- Refresh target frame UI if we target someone we already know
+        if TargetFrame and TargetFrame:IsVisible() and SmartGear.UpdateTargetFrameGS then
+            SmartGear:UpdateTargetFrameGS()
+        end
+    elseif event == "INSPECT_TALENT_READY" then
+        if currentInspectUnit and UnitGUID(currentInspectUnit) == currentInspectGUID then
+            local score = CalculateGS(currentInspectUnit)
+            if score > 0 then
+                SmartGear.GSCache[currentInspectGUID] = score
+                
+                -- Force redraw tooltips if hovering
+                local _, ttUnit = GameTooltip:GetUnit()
+                if ttUnit and UnitGUID(ttUnit) == currentInspectGUID then
+                    -- A hack to force the tooltip to redraw the GS
+                    GameTooltip:SetUnit(ttUnit)
+                end
+                
+                -- Force redraw Target frame UI if targeting them
+                if UnitIsUnit("target", currentInspectUnit) and SmartGear.UpdateTargetFrameGS then
+                    SmartGear:UpdateTargetFrameGS()
+                end
+            end
+        end
+        ClearInspectPlayer()
+        currentInspectUnit = nil
+        currentInspectGUID = nil
+    end
+end)
+
+function SmartGear:GetUnitGearScore(unit)
+    if not unit or not UnitIsPlayer(unit) then return 0 end
+    if UnitIsUnit(unit, "player") then
+        return CalculateGS("player")
+    end
+    
+    local guid = UnitGUID(unit)
+    if guid and self.GSCache[guid] then
+        return self.GSCache[guid]
+    end
+    
+    -- Attempt an immediate calculate just in case the client already has it somehow
+    local immediate = CalculateGS(unit)
+    if immediate > 0 and guid then
+        self.GSCache[guid] = immediate
+        return immediate
+    end
+    
+    -- If we don't have it, trigger an inspect request
+    DoSilentInspect(unit)
+    return 0
 end
