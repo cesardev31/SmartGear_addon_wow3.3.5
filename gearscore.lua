@@ -33,33 +33,44 @@ local GS_ItemTypes = {
     [""]                    = 0,
 }
 
--- Exact WotLK GearScoreLite math curves
+local GS_Formula = {
+    ["A"] = { -- ItemLevel > 120
+        [4] = { A = 91.4500, B = 0.6500 },
+        [3] = { A = 81.3750, B = 0.8125 },
+        [2] = { A = 73.0000, B = 1.0000 }
+    },
+    ["B"] = { -- ItemLevel <= 120
+        [4] = { A = 26.0000, B = 1.2000 },
+        [3] = { A = 0.7500,  B = 1.8000 },
+        [2] = { A = 8.0000,  B = 2.0000 },
+        [1] = { A = 0.0000,  B = 2.2500 }
+    }
+}
+
+-- Exact WotLK GearScoreLite math curves from original source
 local function GetItemScoreMath(ilvl, rarity)
     if not ilvl or ilvl == 0 then return 0 end
     
-    local score = 0
-    if ilvl <= 120 then
-        -- Vanilla / TBC calculation
-        if rarity == 5 then score = ilvl * 2.5
-        elseif rarity == 4 then score = ilvl * 2.0
-        elseif rarity == 3 then score = ilvl * 1.875
-        elseif rarity == 2 then score = ilvl * 1.2
-        elseif rarity <= 1 then score = ilvl * 0.8
-        elseif rarity == 7 then score = ilvl * 1.875
-        end
+    local qualityScale = 1
+    if rarity == 5 then qualityScale = 1.3; rarity = 4
+    elseif rarity == 1 then qualityScale = 0.005; rarity = 2
+    elseif rarity == 0 then qualityScale = 0.005; rarity = 2 end
+    if rarity == 7 then rarity = 3; ilvl = 187.05 end
+    
+    local tableData
+    if ilvl > 120 then
+        tableData = GS_Formula["A"][rarity]
     else
-        -- WotLK calculation
-        if rarity == 5 then score = ((ilvl - 91.45) / 0.65) * 1.2 * 4.65
-        elseif rarity == 4 then score = ((ilvl - 91.45) / 0.65) * 4.65
-        elseif rarity == 3 then score = ((ilvl - 81.375) / 0.8125) * 2.625
-        elseif rarity == 2 then score = ((ilvl - 73.0) / 1.0) * 2.0
-        elseif rarity <= 1 then score = ilvl * 0.8
-        elseif rarity == 7 then score = ((ilvl - 81.375) / 0.8125) * 2.625
-        end
+        tableData = GS_Formula["B"][rarity]
     end
     
-    if score < 0 then score = 0 end
-    return score
+    if not tableData then return 0 end
+    
+    local scale = 1.8618
+    local baseScore = ((ilvl - tableData.A) / tableData.B) * scale * qualityScale
+    
+    if baseScore < 0 then baseScore = 0 end
+    return baseScore
 end
 
 function SmartGear:GetClassicGearScore(itemLink)
