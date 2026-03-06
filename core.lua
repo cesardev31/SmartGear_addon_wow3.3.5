@@ -5,7 +5,7 @@
 
 -- Addon-wide namespace  ------------------------------------------------
 SmartGear = SmartGear or {}
-SmartGear.version = "1.0"
+SmartGear.version = "3.0"
 
 ------------------------------------------------------------------------
 -- Utility: colored print
@@ -29,7 +29,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         SmartGear:ScanGear()
         SmartGear:UpdatePanel()
         SmartGear:UpdateSlotOverlays()
-        SmartGear:Print("v" .. SmartGear.version .. " loaded. " .. SmartGear_L["CMD_SPEC"] .. " " .. (SmartGear.specName or SmartGear_L["UNKNOWN"]))
+        SmartGear:Print("v" .. SmartGear.version .. " loaded. " .. SmartGear.L["CMD_SPEC"] .. " " .. (SmartGear.specName or SmartGear.L["UNKNOWN"]))
 
     -- When a piece of gear changes: rescan and refresh UI
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then

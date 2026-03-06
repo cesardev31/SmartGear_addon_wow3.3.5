@@ -3,9 +3,10 @@
 -- Contains multi-language strings and translation logic.
 ------------------------------------------------------------------------
 
-local SmartGear = _G.SmartGear
-local L = {}
-SmartGear.L = L
+SmartGear = _G.SmartGear or {}
+_G.SmartGear = SmartGear
+SmartGear.L = SmartGear.L or {}
+local L = SmartGear.L
 
 local locale = GetLocale()
 

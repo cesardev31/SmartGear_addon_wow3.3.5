@@ -124,14 +124,14 @@ function SmartGear:CheckGemAndEnchant(slotID, itemLink)
             local text = left:GetText() or ""
 
             -- Empty socket?
-            for _, pat in ipairs(SmartGear_L["SOCKET_PATTERNS"]) do
+            for _, pat in ipairs(SmartGear.L["SOCKET_PATTERNS"]) do
                 if text:find(pat) then
                     missingGem = true
                 end
             end
 
             -- Enchant line usually starts with pattern or is on line 2
-            for _, pat in ipairs(SmartGear_L["ENCHANT_PATTERNS"]) do
+            for _, pat in ipairs(SmartGear.L["ENCHANT_PATTERNS"]) do
                 if text:find(pat) then
                     hasEnchant = true
                 end
@@ -148,10 +148,10 @@ function SmartGear:CheckGemAndEnchant(slotID, itemLink)
 
     local warnings = {}
     if missingGem then
-        table.insert(warnings, SmartGear_L["MISSING_GEM"])
+        table.insert(warnings, SmartGear.L["MISSING_GEM"])
     end
     if enchantableSlots[slotID] and not hasEnchant then
-        table.insert(warnings, SmartGear_L["MISSING_ENCHANT"])
+        table.insert(warnings, SmartGear.L["MISSING_ENCHANT"])
     end
 
     if #warnings > 0 then

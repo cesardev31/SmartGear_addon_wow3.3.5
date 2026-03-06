@@ -43,11 +43,11 @@ local function OnTooltipSetItem(tooltip)
     local gScore = SmartGear:GetClassicGearScore(itemLink)
     
     if iLevel and iLevel > 0 then
-        AddLine(tooltip, COLOR_CYAN .. SmartGear_L["ITEM_LEVEL"] .. ": " .. iLevel .. COLOR_CLOSE)
+        AddLine(tooltip, COLOR_CYAN .. SmartGear.L["ITEM_LEVEL"] .. ": " .. iLevel .. COLOR_CLOSE)
     end
     if gScore and gScore > 0 then
         local color = SmartGear:GetColorByGearScore(gScore)
-        AddLine(tooltip, color .. SmartGear_L["GS_SCORE"] .. ": " .. gScore .. COLOR_CLOSE)
+        AddLine(tooltip, color .. SmartGear.L["GS_SCORE"] .. ": " .. gScore .. COLOR_CLOSE)
     end
 
     --------------------------------------------------------------------
@@ -62,7 +62,7 @@ local function OnTooltipSetItem(tooltip)
     if not slotID then
         -- Can't determine slot (e.g. consumable, bag, quest item)
         if hoveredScore > 0 then
-            AddLine(tooltip, COLOR_GREY .. "SmartGear " .. SmartGear_L["SCORE"] .. ": " ..
+            AddLine(tooltip, COLOR_GREY .. "SmartGear " .. SmartGear.L["SCORE"] .. ": " ..
                     math.floor(hoveredScore + 0.5) .. COLOR_CLOSE)
         end
         return
@@ -102,7 +102,7 @@ local function OnTooltipSetItem(tooltip)
     AddLine(tooltip, " ")  -- blank spacer
 
     -- Hovered item score
-    AddLine(tooltip, COLOR_CYAN .. "SmartGear " .. SmartGear_L["SCORE"] .. ": " ..
+    AddLine(tooltip, COLOR_CYAN .. "SmartGear " .. SmartGear.L["SCORE"] .. ": " ..
             math.floor(hoveredScore + 0.5) .. COLOR_CLOSE)
 
     if equippedLink then
@@ -111,21 +111,21 @@ local function OnTooltipSetItem(tooltip)
 
         if diff > 0.5 then
             -- Upgrade ▲
-            AddLine(tooltip, COLOR_GREEN .. SmartGear_L["UPGRADE"] .. " +" ..
+            AddLine(tooltip, COLOR_GREEN .. SmartGear.L["UPGRADE"] .. " +" ..
                     absDiff .. COLOR_CLOSE)
         elseif diff < -0.5 then
             -- Downgrade ▼
-            AddLine(tooltip, COLOR_RED .. SmartGear_L["DOWNGRADE"] .. " -" ..
+            AddLine(tooltip, COLOR_RED .. SmartGear.L["DOWNGRADE"] .. " -" ..
                     absDiff .. COLOR_CLOSE)
         else
-            AddLine(tooltip, COLOR_GREY .. SmartGear_L["SAME_SCORE"] .. COLOR_CLOSE)
+            AddLine(tooltip, COLOR_GREY .. SmartGear.L["SAME_SCORE"] .. COLOR_CLOSE)
         end
 
         -- Equipped score for reference
-        AddLine(tooltip, COLOR_GREY .. SmartGear_L["EQUIPPED_SCORE"] .. ": " ..
+        AddLine(tooltip, COLOR_GREY .. SmartGear.L["EQUIPPED_SCORE"] .. ": " ..
                 math.floor(equippedScore + 0.5) .. COLOR_CLOSE)
     else
-        AddLine(tooltip, COLOR_YELLOW .. SmartGear_L["NO_EQUIPPED"] .. COLOR_CLOSE)
+        AddLine(tooltip, COLOR_YELLOW .. SmartGear.L["NO_EQUIPPED"] .. COLOR_CLOSE)
     end
 
     --------------------------------------------------------------------
@@ -179,7 +179,7 @@ local function OnTooltipSetUnit(tooltip)
     if score and score > 0 then
         local color = SmartGear:GetColorByGearScore(score)
         tooltip:AddLine(" ")
-        tooltip:AddLine(color .. SmartGear_L["GS_SCORE"] .. ": " .. score .. COLOR_CLOSE)
+        tooltip:AddLine(color .. SmartGear.L["GS_SCORE"] .. ": " .. score .. COLOR_CLOSE)
         tooltip:Show()
     end
 end
