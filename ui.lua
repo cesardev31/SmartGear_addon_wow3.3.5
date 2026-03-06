@@ -28,7 +28,25 @@ local function CreatePanel()
     -- Huge GearScore text
     gsText = panel:CreateFontString(nil, "OVERLAY", "NumberFontNormalHuge")
     gsText:SetPoint("TOP", panel, "TOP", 0, 0)
-
+    gsText:SetText("|cffffffff0|r")
+    panel.gsText = gsText
+    
+    -- Recommendations Trigger Button
+    local recBtn = CreateFrame("Button", nil, panel)
+    recBtn:SetPoint("CENTER", gsText, "CENTER")
+    recBtn:SetWidth(150)
+    recBtn:SetHeight(40)
+    recBtn:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(SmartGear.L["REC_CLICK_DESC"])
+        GameTooltip:Show()
+    end)
+    recBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    recBtn:SetScript("OnClick", function()
+        if SmartGear.ToggleRecommendations then
+            SmartGear:ToggleRecommendations()
+        end
+    end)
     -- Secondary stats (SmartScore and iLvl combined to center perfectly)
     infoText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     infoText:SetPoint("TOP", gsText, "BOTTOM", 0, -2)

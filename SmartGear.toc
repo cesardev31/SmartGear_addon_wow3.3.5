@@ -5,9 +5,11 @@
 ## Version: 2.1
 
 locales.lua
+data_recommendations.lua
 core.lua
 talents.lua
 gearscore.lua
 gear.lua
-tooltip.lua
+ui_recommendations.lua
 ui.lua
+tooltip.lua
