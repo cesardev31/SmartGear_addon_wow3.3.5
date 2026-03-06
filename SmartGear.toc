@@ -2,11 +2,11 @@
 ## Title: SmartGear
 ## Notes: All-in-one Gear analyzer and UI enhancer for WotLK 3.3.5a
 ## Author: Cesar
-## Version: 2.1
+## Version: 3.4
 
+core.lua
 locales.lua
 data_recommendations.lua
-core.lua
 talents.lua
 gearscore.lua
 gear.lua

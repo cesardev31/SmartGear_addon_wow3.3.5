@@ -1,15 +1,22 @@
-------------------------------------------------------------------------
--- SmartGear · ui_recommendations.lua
--- Creates the interactive pop-up window for Recommendations
-------------------------------------------------------------------------
-
+-- Use the global SmartGear created by locales.lua/core.lua
+_G.SmartGear = _G.SmartGear or {}
 local SmartGear = _G.SmartGear
+
+-- Safety check for locales
+if not SmartGear.L then
+    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[SmartGear Error]|r Locales module (L) not found!")
+    return
+end
 local L = SmartGear.L
+
+SmartGear:Print("Loading Module: ui_recommendations.lua")
+
 local RecFrame = nil
 
 local function CreateRecommendationsFrame()
     if RecFrame then return end
     
+    SmartGear:Print("Creating Recommendations Frame...")
     RecFrame = CreateFrame("Frame", "SmartGearRecommendationsFrame", UIParent)
     RecFrame:SetSize(400, 350)
     RecFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 50)

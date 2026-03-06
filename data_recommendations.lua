@@ -1,10 +1,15 @@
-------------------------------------------------------------------------
--- SmartGear · data_recommendations.lua
--- Contains arrays for Instance Tiers, Gems, and Enchant Recommendations
-------------------------------------------------------------------------
-
+-- Use the global SmartGear created by locales.lua/core.lua
+_G.SmartGear = _G.SmartGear or {}
 local SmartGear = _G.SmartGear
+
+-- Safety check for locales
+if not SmartGear.L then
+    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[SmartGear Error]|r Locales module (L) not found! (Data)")
+    return
+end
 local L = SmartGear.L
+
+SmartGear:Print("Loading Module: data_recommendations.lua")
 
 SmartGear.InstanceTiers = {
     { min = 0,    max = 2499, title = L["TIER_NORMAL"] },
