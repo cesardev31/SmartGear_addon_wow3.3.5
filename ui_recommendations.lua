@@ -24,6 +24,8 @@ local function CreateRecommendationsFrame()
     RecFrame:RegisterForDrag("LeftButton")
     RecFrame:SetScript("OnDragStart", RecFrame.StartMoving)
     RecFrame:SetScript("OnDragStop", RecFrame.StopMovingOrSizing)
+    RecFrame:SetFrameStrata("DIALOG")
+    RecFrame:SetFrameLevel(100)
     RecFrame:Hide()
     
     -- Close button
@@ -134,13 +136,13 @@ function SmartGear:UpdateRecommendationsContent()
     end
     
     -- 3. Update Spec & Gems/Enchants
-    local activeSpec = self:GetActiveSpecInfo()
+    local _, sName = self:DetectSpec()
     local specName = L["REC_UNKNOWN_SPEC"]
     local gems = "-"
     local enchants = "-"
     
-    if activeSpec and activeSpec.name then
-        specName = activeSpec.name
+    if sName and sName ~= "Unknown" then
+        specName = sName
         
         local classData = SmartGear.SpecRecommendations[classFile]
         if classData and classData[specName] then
@@ -165,5 +167,6 @@ function SmartGear:ToggleRecommendations()
     else
         self:UpdateRecommendationsContent()
         RecFrame:Show()
+        self:Print(L["REC_TITLE"] .. " " .. (L["SCORE"] or "GS") .. ": " .. self:GetUnitGearScore("player"))
     end
 end
