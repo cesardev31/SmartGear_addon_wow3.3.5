@@ -15,7 +15,7 @@ local GS_ItemTypes = {
     ["INVTYPE_FEET"]        = { mod = 0.75, enchantable = true },
     ["INVTYPE_WRIST"]       = { mod = 0.5625, enchantable = true },
     ["INVTYPE_HAND"]        = { mod = 0.75, enchantable = true },
-    ["INVTYPE_FINGER"]      = { mod = 0.5625, enchantable = true },
+    ["INVTYPE_FINGER"]      = { mod = 0.5625, enchantable = false },
     ["INVTYPE_TRINKET"]     = { mod = 0.5625, enchantable = false },
     ["INVTYPE_CLOAK"]       = { mod = 0.5625, enchantable = true },
     ["INVTYPE_WEAPON"]      = { mod = 1.0, enchantable = true },
