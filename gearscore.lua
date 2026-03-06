@@ -33,48 +33,33 @@ local GS_ItemTypes = {
     [""]                    = 0,
 }
 
-local GS_QualityMultipliers = {
-    [0] = 0.0,   -- Poor
-    [1] = 0.005, -- Common
-    [2] = 0.005, -- Uncommon (Scaling factor proxy)
-    [3] = 1.0,   -- Rare
-    [4] = 1.3,   -- Epic
-    [5] = 1.3,   -- Legendary uses epic curve
-    [6] = 1.3,   -- Artifact
-    [7] = 1.3,   -- Heirloom
-}
-
-local GS_QualityColors = {
-    [0] = { 0.55, 0.55, 0.55 },
-    [1] = { 1.00, 1.00, 1.00 },
-    [2] = { 0.12, 1.00, 0.00 },
-    [3] = { 0.00, 0.44, 0.87 },
-    [4] = { 0.64, 0.21, 0.93 },
-    [5] = { 1.00, 0.50, 0.00 },
-}
-
--- Approximated curve to mimic WotLK classic GearScore values for level 80 epics.
+-- Exact WotLK GearScoreLite math curves
 local function GetItemScoreMath(ilvl, rarity)
     if not ilvl or ilvl == 0 then return 0 end
     
-    local mult = GS_QualityMultipliers[rarity] or 1.0
-    local base = 0
-    
-    if ilvl > 120 then
-        -- Standard WotLK epic scaling curve approximation
-        base = ((ilvl - 91) * 4.25) * mult
-        if base < 0 then base = 0 end
+    local score = 0
+    if ilvl <= 120 then
+        -- Vanilla / TBC calculation
+        if rarity == 5 then score = ilvl * 2.5
+        elseif rarity == 4 then score = ilvl * 2.0
+        elseif rarity == 3 then score = ilvl * 1.875
+        elseif rarity == 2 then score = ilvl * 1.2
+        elseif rarity <= 1 then score = ilvl * 0.8
+        elseif rarity == 7 then score = ilvl * 1.875
+        end
     else
-        -- Vanilla/TBC items
-        base = ((ilvl - 20) * 1.5) * mult
-        if base < 0 then base = 0 end
+        -- WotLK calculation
+        if rarity == 5 then score = ((ilvl - 91.45) / 0.65) * 1.2 * 4.65
+        elseif rarity == 4 then score = ((ilvl - 91.45) / 0.65) * 4.65
+        elseif rarity == 3 then score = ((ilvl - 81.375) / 0.8125) * 2.625
+        elseif rarity == 2 then score = ((ilvl - 73.0) / 1.0) * 2.0
+        elseif rarity <= 1 then score = ilvl * 0.8
+        elseif rarity == 7 then score = ((ilvl - 81.375) / 0.8125) * 2.625
+        end
     end
     
-    if rarity == 2 then base = base * 0.8 end -- adjust down uncommon
-    if rarity == 3 then base = base * 0.9 end -- adjust down rare
-    if rarity == 5 then base = base * 1.1 end -- adjust up legendary
-    
-    return base
+    if score < 0 then score = 0 end
+    return score
 end
 
 function SmartGear:GetClassicGearScore(itemLink)
