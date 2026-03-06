@@ -36,6 +36,11 @@ local function CreatePanel()
     recBtn:SetPoint("CENTER", gsText, "CENTER")
     recBtn:SetWidth(150)
     recBtn:SetHeight(40)
+    local highlight = recBtn:CreateTexture(nil, "HIGHLIGHT")
+    highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+    highlight:SetBlendMode("ADD")
+    highlight:SetAllPoints(recBtn)
+    
     recBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(SmartGear.L["REC_CLICK_DESC"])
@@ -66,8 +71,8 @@ function SmartGear:UpdatePanel()
     local spec  = self.specName     or SmartGear.L["UNKNOWN"]
     local gs    = self:GetUnitGearScore("player")
 
-    -- Format GS nice and big
-    gsText:SetText(self:GetColorByGearScore(gs) .. gs .. COLOR_CLOSE)
+    -- Format GS nice and big with the clickable icon
+    gsText:SetText(self:GetColorByGearScore(gs) .. gs .. " |cff00ff00[?]|r")
     
     -- Format other stats below combined
     local scoreStr = COLOR_GOLD .. SmartGear.L["SCORE"] .. ": " .. COLOR_WHITE .. score .. COLOR_CLOSE
