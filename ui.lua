@@ -31,11 +31,16 @@ local function CreatePanel()
     gsText:SetText("|cffffffff0|r")
     panel.gsText = gsText
     
-    -- Recommendations Trigger Button
-    local recBtn = CreateFrame("Button", nil, panel)
+    -- Recommendations Trigger Button (parented to CharacterFrame for safer click capture)
+    local recBtn = CreateFrame("Button", "SmartGearRecTrigger", CharacterFrame)
     recBtn:SetPoint("CENTER", gsText, "CENTER")
     recBtn:SetWidth(150)
     recBtn:SetHeight(40)
+    recBtn:SetFrameStrata("HIGH")
+    recBtn:SetFrameLevel(CharacterFrame:GetFrameLevel() + 20)
+    recBtn:EnableMouse(true)
+    recBtn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    
     local highlight = recBtn:CreateTexture(nil, "HIGHLIGHT")
     highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
     highlight:SetBlendMode("ADD")
@@ -48,8 +53,11 @@ local function CreatePanel()
     end)
     recBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
     recBtn:SetScript("OnClick", function()
+        SmartGear:Print("GearScore Button Clicked!")
         if SmartGear.ToggleRecommendations then
             SmartGear:ToggleRecommendations()
+        else
+            SmartGear:Print("Error: ToggleRecommendations function not found!")
         end
     end)
     -- Secondary stats (SmartScore and iLvl combined to center perfectly)

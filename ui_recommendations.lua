@@ -93,7 +93,7 @@ local function CreateRecommendationsFrame()
     RecFrame.GemsValue:SetPoint("TOPLEFT", RecFrame.GemsLabel, "BOTTOMLEFT", 10, -2)
     RecFrame.GemsValue:SetWidth(340)
     RecFrame.GemsValue:SetJustifyH("LEFT")
-    RecFrame.GemsValue:SetWordWrap(true)
+    -- RecFrame.GemsValue:SetWordWrap(true) -- Incompatible with 3.3.5a (added in 4.0)
     
     RecFrame.EnchLabel = RecFrame.Content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     RecFrame.EnchLabel:SetPoint("TOPLEFT", RecFrame.GemsValue, "BOTTOMLEFT", -10, -8)
@@ -103,7 +103,9 @@ local function CreateRecommendationsFrame()
     RecFrame.EnchValue:SetPoint("TOPLEFT", RecFrame.EnchLabel, "BOTTOMLEFT", 10, -2)
     RecFrame.EnchValue:SetWidth(340)
     RecFrame.EnchValue:SetJustifyH("LEFT")
-    RecFrame.EnchValue:SetWordWrap(true)
+    -- RecFrame.EnchValue:SetWordWrap(true) -- Incompatible with 3.3.5a (added in 4.0)
+    
+    SmartGear:Print("Recommendations UI Frame Created.")
 end
 
 function SmartGear:UpdateRecommendationsContent()
@@ -158,8 +160,15 @@ function SmartGear:UpdateRecommendationsContent()
 end
 
 function SmartGear:ToggleRecommendations()
+    self:Print("ToggleRecommendations Called.")
     if not RecFrame then
+        self:Print("RecFrame is nil, creating...")
         CreateRecommendationsFrame()
+    end
+    
+    if not RecFrame then
+        self:Print("CRITICAL ERROR: RecFrame creation failed.")
+        return
     end
     
     if RecFrame:IsVisible() then
