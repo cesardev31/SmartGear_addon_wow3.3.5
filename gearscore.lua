@@ -4,34 +4,55 @@
 ------------------------------------------------------------------------
 
 local GS_ItemTypes = {
-    ["INVTYPE_HEAD"]        = 1.0,
-    ["INVTYPE_NECK"]        = 0.5625,
-    ["INVTYPE_SHOULDER"]    = 0.75,
-    ["INVTYPE_BODY"]        = 0,
-    ["INVTYPE_CHEST"]       = 1.0,
-    ["INVTYPE_ROBE"]        = 1.0,
-    ["INVTYPE_WAIST"]       = 0.75,
-    ["INVTYPE_LEGS"]        = 1.0,
-    ["INVTYPE_FEET"]        = 0.75,
-    ["INVTYPE_WRIST"]       = 0.5625,
-    ["INVTYPE_HAND"]        = 0.75,
-    ["INVTYPE_FINGER"]      = 0.5625,
-    ["INVTYPE_TRINKET"]     = 0.5625,
-    ["INVTYPE_CLOAK"]       = 0.5625,
-    ["INVTYPE_WEAPON"]      = 1.0,
-    ["INVTYPE_SHIELD"]      = 1.0,
-    ["INVTYPE_2HWEAPON"]    = 2.0,
-    ["INVTYPE_WEAPONMAINHAND"]= 1.0,
-    ["INVTYPE_WEAPONOFFHAND"] = 1.0,
-    ["INVTYPE_HOLDABLE"]    = 1.0,
-    ["INVTYPE_RANGED"]      = 0.3164,
-    ["INVTYPE_THROWN"]      = 0.3164,
-    ["INVTYPE_RANGEDRIGHT"] = 0.3164,
-    ["INVTYPE_RELIC"]       = 0.3164,
-    ["INVTYPE_TABARD"]      = 0,
-    ["INVTYPE_BAG"]         = 0,
-    [""]                    = 0,
+    ["INVTYPE_HEAD"]        = { mod = 1.0, enchantable = true },
+    ["INVTYPE_NECK"]        = { mod = 0.5625, enchantable = false },
+    ["INVTYPE_SHOULDER"]    = { mod = 0.75, enchantable = true },
+    ["INVTYPE_BODY"]        = { mod = 0, enchantable = false },
+    ["INVTYPE_CHEST"]       = { mod = 1.0, enchantable = true },
+    ["INVTYPE_ROBE"]        = { mod = 1.0, enchantable = true },
+    ["INVTYPE_WAIST"]       = { mod = 0.75, enchantable = false },
+    ["INVTYPE_LEGS"]        = { mod = 1.0, enchantable = true },
+    ["INVTYPE_FEET"]        = { mod = 0.75, enchantable = true },
+    ["INVTYPE_WRIST"]       = { mod = 0.5625, enchantable = true },
+    ["INVTYPE_HAND"]        = { mod = 0.75, enchantable = true },
+    ["INVTYPE_FINGER"]      = { mod = 0.5625, enchantable = true },
+    ["INVTYPE_TRINKET"]     = { mod = 0.5625, enchantable = false },
+    ["INVTYPE_CLOAK"]       = { mod = 0.5625, enchantable = true },
+    ["INVTYPE_WEAPON"]      = { mod = 1.0, enchantable = true },
+    ["INVTYPE_SHIELD"]      = { mod = 1.0, enchantable = true },
+    ["INVTYPE_2HWEAPON"]    = { mod = 2.0, enchantable = true },
+    ["INVTYPE_WEAPONMAINHAND"]= { mod = 1.0, enchantable = true },
+    ["INVTYPE_WEAPONOFFHAND"] = { mod = 1.0, enchantable = true },
+    ["INVTYPE_HOLDABLE"]    = { mod = 1.0, enchantable = false },
+    ["INVTYPE_RANGED"]      = { mod = 0.3164, enchantable = true },
+    ["INVTYPE_THROWN"]      = { mod = 0.3164, enchantable = false },
+    ["INVTYPE_RANGEDRIGHT"] = { mod = 0.3164, enchantable = false },
+    ["INVTYPE_RELIC"]       = { mod = 0.3164, enchantable = false },
+    ["INVTYPE_TABARD"]      = { mod = 0, enchantable = false },
+    ["INVTYPE_BAG"]         = { mod = 0, enchantable = false },
+    [""]                    = { mod = 0, enchantable = false },
 }
+
+local function GetEnchantMultiplier(itemLink, equipLoc)
+    if not itemLink then return 1.0 end
+    local typeData = GS_ItemTypes[equipLoc]
+    if not typeData or typeData.enchantable == false then return 1.0 end
+    
+    local found, _, itemSubString = string.find(itemLink, "^|c%x+|H(.+)|h%[.*%]")
+    if not itemSubString then return 1.0 end
+    
+    local parts = {}
+    for v in string.gmatch(itemSubString, "[^:]+") do table.insert(parts, v) end
+    if #parts >= 3 then
+        local enchantID = parts[3]
+        if enchantID == "0" then
+            local penalty = math.floor(-2 * typeData.mod * 100) / 100
+            return 1 + (penalty / 100)
+        end
+    end
+    
+    return 1.0
+end
 
 local GS_Formula = {
     ["A"] = { -- ItemLevel > 120
@@ -78,10 +99,17 @@ function SmartGear:GetClassicGearScore(itemLink)
     local _, _, rarity, ilvl, _, _, _, _, equipLoc = GetItemInfo(itemLink)
     if not equipLoc or not ilvl then return 0 end
     
-    local modifier = GS_ItemTypes[equipLoc] or 0
+    local typeData = GS_ItemTypes[equipLoc]
+    local modifier = typeData and typeData.mod or 0
     local mathScore = GetItemScoreMath(ilvl, rarity)
     
-    return math.floor((mathScore * modifier) + 0.5)
+    local gearScore = math.floor(mathScore * modifier)
+    if gearScore < 0 then gearScore = 0 end
+    
+    local enchantPercent = GetEnchantMultiplier(itemLink, equipLoc)
+    gearScore = math.floor(gearScore * enchantPercent)
+    
+    return gearScore
 end
 
 function SmartGear:GetColorByGearScore(score)
